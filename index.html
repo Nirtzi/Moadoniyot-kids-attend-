@@ -4,36 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת נוכחות מועדוניות</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; direction: rtl; }
+        .card { background: white; padding: 20px; border-radius: 15px; shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; text-align: center; }
+        h1 { color: #1e1b4b; }
+        .btn { background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px; }
+        .student-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .present { color: green; font-weight: bold; }
+        .absent { color: red; }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { Check, X, Users, Calendar, Eye, Edit3, FileSpreadsheet, AlertTriangle, TrendingUp, Download, MessageSquare, Search, Save } = lucide;
+    <div id="app"></div>
 
-        const storage = {
-            async get(key) { return localStorage.getItem(key); },
-            async set(key, value) { localStorage.setItem(key, value); }
-        };
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const isAdmin = params.get('admin') === 'true';
+        const clubId = params.get('club');
+        const app = document.getElementById('app');
 
-        const AttendanceApp = () => {
-            const [clubId, setClubId] = useState(null);
-            const [isAdmin, setIsAdmin] = useState(false);
-            const [viewMode, setViewMode] = useState('staff');
-            const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
-            const [attendanceData, setAttendanceData] = useState({});
-            const [dailyNotes, setDailyNotes] = useState({});
-            const [searchTerm, setSearchTerm] = useState('');
-            const [alerts, setAlerts] = useState([]);
-            const [clubs, setClubs] = useState([
-                { id: 0, name: 'מועדונית א׳', students: ['דני כהן', 'שירה לוי', 'יוסי מזרחי', 'נועה ברק', 'רון שפירא'] },
-                { id: 1, name: 'מועדונית ב׳', students: ['מיכל אבני', 'עומר דוד', 'תמר גולן', 'אורי פרץ', 'ליאור כץ'] },
+        const clubs = [
+            { id: 0, name: 'מועדונית א׳', students: ['דני כהן', 'שירה לוי', 'יוסי מזרחי', 'נועה ברק'] },
+            { id: 1, name: 'מועדונית ב׳', students: ['מיכל אבני', 'עומר דוד', 'תמר גולן', 'אורי פרץ'] },
+            { id: 2, name: 'מועדונית ג׳', students: ['איה רוזן', 'גיל מור', 'שני ארד', 'טל בן דוד'] }
+        ];
+
+        function render() {
+            if (isAdmin) {
+                let html = '<div class="card"><h1>ניהול מועדוניות 🔑</h1>';
+                clubs.forEach(club => {
+                    html += `<h3>${club.name}</h3>`;
+                    club.students.forEach(s => html += `<div class="student-row"><span>${s}</span><span class="present">רשום</span></div>`);
+                });
+                html += '</div>';
+                app.innerHTML = html;
+            } else if (clubId !== null) {
+                const club = clubs[clubId];
+                let html = `<div class="card"><h1>נוכחות: ${club.name}</h1>`;
+                club.students.forEach(s => {
+                    html += `<div class="student-row"><span>${s}</span><button class="btn" onclick="this.innerText='✅'; this.style.background='green'">סמן נוכחות</button></div>`;
+                });
+                html += '</div>';
+                app.innerHTML = html;
+            } else {
+                app.innerHTML = '<div class="card"><h1>שלום! 👋</h1><p>נא להשתמש בקישור האישי שקיבלת כדי להיכנס למערכת.</p></div>';
+            }
+        }
+        render();
+    </script>
+</body>
+</html>
                 { id: 2, name: 'מועדונית ג׳', students: ['איה רוזן', 'גיל מור', 'שני ארד', 'עדי נחום', 'טל בן דוד'] }
             ]);
 
